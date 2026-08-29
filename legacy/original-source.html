@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta de Resolução — Marinha Mercante</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ocean-deep: #0A1628;
+    --ocean-mid: #102A43;
+    --ocean-line: #1E3A5C;
+    --paper: #F1E9D2;
+    --paper-dim: #E4DABE;
+    --ink: #1B2A41;
+    --ink-soft: #4A5A72;
+    --brass: #C9A227;
+    --brass-bright: #E4C24E;
+    --coral: #D65A31;
+    --teal: #2F9E8F;
+    --radius: 3px;
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 20% -10%, #16324f 0%, transparent 55%),
+      radial-gradient(ellipse at 90% 110%, #0d2138 0%, transparent 50%),
+      var(--ocean-deep);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    padding: 40px 20px 80px;
+  }
+
+  .wrap{ max-width: 880px; margin: 0 auto; }
+
+  /* ---------- Header : ship's log title ---------- */
+  header{
+    text-align:center;
+    margin-bottom: 36px;
+    color: var(--paper);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--brass-bright);
+    margin-bottom: 10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: clamp(28px, 5vw, 44px);
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  header p.sub{
+    font-size: 14.5px;
+    color: #9FB3C8;
+    max-width: 480px;
+    margin: 0 auto 26px;
+    line-height:1.5;
+  }
+  .wave-divider{
+    display:block;
+    width: 100%;
+    max-width: 220px;
+    height: 14px;
+    margin: 0 auto;
+    opacity: .55;
+  }
+
+  /* ---------- Chart panel ---------- */
+  .chart{
+    position:relative;
+    background:
+      repeating-linear-gradient(0deg, rgba(27,42,65,0.05) 0px, rgba(27,42,65,0.05) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(27,42,65,0.05) 0px, rgba(27,42,65,0.05) 1px, transparent 1px, transparent 32px),
+      var(--paper);
+    border: 1px solid var(--paper-dim);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 40px 70px -24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.5) inset;
+    padding: 34px clamp(18px, 4vw, 44px) 40px;
+  }
+
+  .compass{
+    position:absolute;
+    top: 18px; right: 20px;
+    width: 54px; height:54px;
+    opacity:.35;
+  }
+
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom: 12px;
+  }
+  .section-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background: var(--ink-soft);
+    opacity:.25;
+  }
+
+  label.field-label{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 17px;
+    display:block;
+    margin-bottom: 10px;
+  }
+
+  textarea{
+    width:100%;
+    min-height: 150px;
+    resize: vertical;
+    background: #fff;
+    border: 1.5px solid #C9BE9F;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 14px;
+    line-height:1.6;
+    color: var(--ink);
+    outline-offset: 2px;
+  }
+  textarea:focus-visible{ outline: 2px solid var(--brass); border-color: var(--brass); }
+  textarea::placeholder{ color:#9a8f6f; }
+
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:center;
+    justify-content:flex-end;
+    margin-top:16px;
+  }
+
+  .chart-btn{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 15.5px;
+    letter-spacing:.01em;
+    color: var(--paper);
+    background: linear-gradient(155deg, #1E3F63, #0B1E33);
+    border: 1px solid #0A1E33;
+    padding: 14px 26px;
+    border-radius: var(--radius-md);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow: 0 10px 24px -8px rgba(10,22,40,.6);
+    transition: transform .15s, box-shadow .15s, background .15s;
+  }
+  .chart-btn:hover{ transform: translateY(-1px); box-shadow: 0 14px 28px -8px rgba(10,22,40,.65), 0 0 0 3px rgba(228,194,78,0.18); }
+  .chart-btn:active{ transform: translateY(0); box-shadow: 0 6px 14px -6px rgba(10,22,40,.6); }
+  .chart-btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+  .chart-btn:focus-visible{ outline: 2px solid var(--brass-bright); outline-offset:3px; }
+
+  .chart-btn svg{ width:16px; height:16px; }
+
+  /* ---------- Result area ---------- */
+  #result{ margin-top: 34px; }
+  .hidden{ display:none !important; }
+
+  .status-line{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 18px 0;
+  }
+  .dot-pulse{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--brass);
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{ opacity:.25; transform:scale(.85);} 50%{ opacity:1; transform:scale(1);} }
+
+  .error-box{
+    border: 1.5px dashed var(--coral);
+    background: rgba(214,90,49,0.08);
+    color:#8A3517;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height:1.5;
+  }
+
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:10px 18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--paper-dim);
+  }
+  .meta-row b{ color: var(--ink); }
+
+  .final-answer{
+    background: linear-gradient(135deg, #14283F, #0A1626);
+    color: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    flex-wrap:wrap;
+    box-shadow: 0 8px 20px -10px rgba(10,22,40,.5);
+  }
+  .final-answer .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color: var(--brass-bright);
+  }
+  .final-answer .value{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 20px;
+  }
+
+  .result-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:16px;
+  }
+
+  .copy-btn{
+    flex-shrink:0;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.04em;
+    color: var(--ink);
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    transition: background .15s, color .15s, transform .1s;
+  }
+  .copy-btn:hover{ background: var(--ink); color: var(--paper); }
+  .copy-btn:active{ transform: scale(.97); }
+  .copy-btn:focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+  .copy-btn svg{ width:14px; height:14px; flex-shrink:0; }
+  .copy-btn.copied{ background: var(--teal); border-color: var(--teal); color:#fff; }
+
+  .topic-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#7A5C0E;
+    background: rgba(201,162,39,0.18);
+    border:1px solid rgba(201,162,39,0.45);
+    padding:7px 15px;
+    border-radius: 999px;
+    margin:0;
+  }
+  .topic-badge .topic-name{
+    font-family:'Fraunces', serif;
+    text-transform:none;
+    font-weight:700;
+    font-size:14.5px;
+    letter-spacing:0;
+    color:#5E4608;
+  }
+
+  /* ---------- Route: the signature element ---------- */
+  .route{
+    position:relative;
+    padding-left: 34px;
+    margin-bottom: 34px;
+  }
+  .route::before{
+    content:"";
+    position:absolute;
+    left: 9px; top: 8px; bottom: 8px;
+    width: 2px;
+    background-image: linear-gradient(var(--ink-soft) 60%, transparent 0%);
+    background-size: 2px 10px;
+    background-repeat: repeat-y;
+    opacity: .45;
+  }
+  .waypoint{ position:relative; margin-bottom: 26px; }
+  .waypoint:last-child{ margin-bottom: 0; }
+  .buoy{
+    position:absolute;
+    left: -34px; top: 2px;
+    width: 20px; height:20px;
+    border-radius:50%;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight:600;
+    color: var(--ink);
+    z-index:1;
+  }
+  .waypoint h3{
+    font-family:'Fraunces', serif;
+    font-size: 17px;
+    font-weight:600;
+    margin: 0 0 6px;
+  }
+  .waypoint .rule-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color: var(--teal);
+    background: rgba(47,158,143,0.1);
+    border: 1px solid rgba(47,158,143,0.35);
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+  .waypoint p{
+    font-size: 14.5px;
+    line-height:1.65;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .waypoint p .term{
+    font-weight: 700;
+    color: #7A5C0E;
+    background: rgba(201,162,39,0.22);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .calc-line{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 14px;
+    background: #fff;
+    border: 1px solid #D7CBA5;
+    border-left: 3px solid var(--brass);
+    padding: 9px 13px;
+    border-radius: 2px;
+    display:inline-block;
+    color: var(--ink);
+  }
+
+  /* ---------- Alternatives ---------- */
+  .alts-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 17px;
+    margin: 0 0 14px;
+  }
+  .alt{
+    display:flex;
+    gap: 14px;
+    padding: 13px 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    border: 1px solid var(--paper-dim);
+    background: rgba(255,255,255,0.35);
+  }
+  .alt.correct{
+    border-color: rgba(47,158,143,.5);
+    background: rgba(47,158,143,0.08);
+  }
+  .alt.wrong{
+    border-color: rgba(214,90,49,.3);
+  }
+  .alt .letter{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size: 13px;
+    width: 22px; height:22px;
+    flex-shrink:0;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border: 1.5px solid var(--ink);
+  }
+  .alt.correct .letter{ background: var(--teal); border-color: var(--teal); color:#fff; }
+  .alt.wrong .letter{ color: var(--ink-soft); border-color: var(--ink-soft); }
+  .alt-body{ flex:1; }
+  .alt-text{ font-size: 13.5px; font-weight:600; margin-bottom: 3px; }
+  .alt-reason{ font-size: 13.5px; color: var(--ink-soft); line-height:1.5; }
+  .alt.correct .alt-reason{ color: #1F6B60; }
+
+  .macete{
+    margin-top: 26px;
+    background: linear-gradient(180deg, #FBF2D6, #F3E6BE);
+    border: 1px solid var(--brass);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display:flex;
+    gap: 12px;
+  }
+  .macete .icon{ font-size:18px; line-height:1; }
+  .macete .txt{ font-size: 13.5px; line-height:1.6; }
+  .macete .txt b{ font-family:'Fraunces', serif; display:block; margin-bottom:3px; font-size:14.5px; }
+
+  /* ---------- Aula do Tema ---------- */
+  .lesson{
+    margin-top: 34px;
+    padding-top: 26px;
+    border-top: 1px dashed var(--paper-dim);
+  }
+  .lesson-title{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+  .lesson-tema{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color: var(--brass);
+    margin-bottom: 18px;
+    display:block;
+  }
+  .lesson-block{ margin-bottom: 20px; }
+  .lesson-block:last-child{ margin-bottom:0; }
+  .lesson-block h4{
+    font-family:'Fraunces', serif;
+    font-size: 15.5px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin: 0 0 7px;
+  }
+  .lesson-block p{
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--ink);
+    margin: 0 0 12px;
+  }
+  .lesson-block p:last-child{ margin-bottom: 0; }
+  .term{
+    font-weight: 700;
+    color: #7A5C0E;
+    background: rgba(201,162,39,0.22);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .lesson-block.warn .term{
+    color: #8A3517;
+    background: rgba(214,90,49,0.16);
+  }
+  .lesson-block.warn{
+    background: rgba(214,90,49,0.07);
+    border: 1px solid rgba(214,90,49,0.25);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .lesson-status{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .youtube-box{
+    margin-top: 24px;
+    background: linear-gradient(180deg, #FFF, #FBF6E8);
+    border: 1px solid var(--paper-dim);
+    border-left: 3px solid var(--coral);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display:flex;
+    gap: 12px;
+  }
+  .youtube-box .icon{ font-size:18px; line-height:1; }
+  .youtube-box .txt{ font-size: 13.5px; line-height:1.6; flex:1; }
+  .youtube-box .txt b{ font-family:'Fraunces', serif; display:block; margin-bottom:4px; font-size:14.5px; }
+  .youtube-box .kw{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink); }
+  .youtube-box a{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:#8A3517;
+    text-decoration:none;
+    border-bottom:1px solid rgba(138,53,23,0.35);
+  }
+  .youtube-box a:hover{ border-bottom-color:#8A3517; }
+
+  footer{
+    text-align:center;
+    margin-top: 30px;
+    font-size: 12px;
+    color: #6F84A0;
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  /* ---------- Diário de Bordo (banco de questões salvas) ---------- */
+  .bank-chart{ margin-top: 26px; }
+  .bank-controls-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .bank-search-input{
+    flex:1;
+    min-width:0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    padding:9px 12px;
+    border:1.5px solid #C9BE9F;
+    border-radius: var(--radius-sm);
+    background:#fff;
+    color:var(--ink);
+    outline-offset:2px;
+  }
+  .bank-search-input:focus-visible{ outline:2px solid var(--brass); border-color:var(--brass); }
+  .bank-search-input::placeholder{ color:#9a8f6f; }
+  .bank-search-btn{
+    flex-shrink:0;
+    width:42px;
+    border:1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius-sm);
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: background .15s;
+  }
+  .bank-search-btn:hover{ background:#0F2740; }
+  .bank-search-btn:focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+  .bank-search-btn svg{ width:16px; height:16px; }
+  .bank-list{ display:flex; flex-direction:column; gap:8px; }
+  .bank-empty{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color: var(--ink-soft);
+    padding: 10px 2px 4px;
+    line-height:1.6;
+  }
+  .bank-item{
+    display:flex; align-items:center; gap:10px;
+    background: rgba(255,255,255,0.4);
+    border:1px solid var(--paper-dim);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    transition: background .15s;
+  }
+  .bank-item:hover{ background: rgba(255,255,255,0.75); }
+  .bank-item-main{
+    flex:1; min-width:0; cursor:pointer;
+    background:none; border:none; text-align:left; padding:0;
+    font-family: inherit;
+  }
+  .bank-item-main:focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+  .bank-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color: var(--brass);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:3px;
+  }
+  .bank-tag .lesson-dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--teal);
+    display:inline-block;
+  }
+  .bank-preview{
+    font-size: 13.5px;
+    margin:0;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  .bank-delete{
+    flex-shrink:0;
+    background: transparent;
+    border: 1px solid var(--paper-dim);
+    color: var(--ink-soft);
+    width: 26px; height:26px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size: 12px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .bank-delete:hover{ background: rgba(214,90,49,0.12); border-color: var(--coral); color: var(--coral); }
+  .bank-delete:focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+
+  /* ---------- Subject tabs (Matemática / Português) ---------- */
+  .subject-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom: 28px;
+    padding: 5px;
+    background: rgba(27,42,65,0.06);
+    border-radius: var(--radius-md);
+    width: fit-content;
+    max-width: 100%;
+  }
+  .subject-tab{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 14.5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition: background .18s, color .18s, box-shadow .18s;
+  }
+  .subject-tab .icon{ font-size:16px; }
+  .subject-tab:hover{ color: var(--ink); }
+  .subject-tab.active{
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 2px 8px rgba(27,42,65,0.15), 0 0 0 1.5px var(--brass) inset;
+  }
+  .subject-tab:focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+
+  @media (max-width: 560px){
+    .subject-tabs{ width:100%; }
+    .subject-tab{ flex:1; justify-content:center; padding: 11px 10px; font-size:13.5px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  @media (max-width: 560px){
+    .chart-btn{ margin-left:0; width:100%; justify-content:center; }
+    .controls{ flex-direction:column; align-items:stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Agente IA · Marinha Mercante</div>
+    <h1>Carta de Resolução</h1>
+    <p class="sub">Cole uma questão de Matemática ou Português. Eu traço a rota completa da resolução — passo a passo, regra por regra — e explico por que cada alternativa está certa ou errada.</p>
+    <svg class="wave-divider" viewBox="0 0 220 14" fill="none">
+      <path d="M2 7c8-8 16-8 24 0s16 8 24 0 16-8 24 0 16 8 24 0 16-8 24 0 16 8 24 0 16-8 24 0 16 8 24 0" stroke="#E4C24E" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </header>
+
+  <div class="chart">
+    <div class="subject-tabs" id="subjectTabs">
+      <button class="subject-tab active" data-subject="matematica"><span class="icon">🧮</span> Matemática</button>
+      <button class="subject-tab" data-subject="portugues"><span class="icon">📘</span> Português</button>
+    </div>
+
+    <svg class="compass" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="46" stroke="#1B2A41" stroke-width="1"/>
+      <circle cx="50" cy="50" r="2.5" fill="#1B2A41"/>
+      <path d="M50 6 L56 50 L50 94 L44 50 Z" fill="#1B2A41"/>
+      <path d="M6 50 L50 44 L94 50 L50 56 Z" fill="#1B2A41" opacity="0.55"/>
+      <text x="50" y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#1B2A41">N</text>
+    </svg>
+
+    <div class="section-label">Registro da questão</div>
+    <label class="field-label" for="questionInput" id="fieldLabel">Cole o enunciado e as alternativas</label>
+    <textarea id="questionInput" placeholder="Ex.: Um navio percorre 240 milhas em 8 horas. Mantendo a mesma velocidade, quantas milhas percorrerá em 5 horas?
+A) 120   B) 150   C) 160   D) 180"></textarea>
+
+    <div class="controls">
+      <button class="chart-btn" id="solveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+        Traçar rota da resolução
+      </button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <div class="chart bank-chart">
+    <div class="section-label" id="bankLabel">Diário de bordo — Matemática</div>
+    <div class="bank-controls-row">
+      <input type="search" id="bankSearchInput" class="bank-search-input" placeholder="Buscar por tema ou palavra-chave (ex: frações, concordância)...">
+      <button class="bank-search-btn" id="bankSearchBtn" aria-label="Buscar no diário de bordo" title="Buscar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+    </div>
+    <div id="bankList" class="bank-list"></div>
+  </div>
+
+  <footer>corrija · aprenda o macete · repita a rota até dominar o rumo</footer>
+</div>
+
+<script>
+  const MATH_PLACEHOLDER = `Ex.: Um navio percorre 240 milhas em 8 horas. Mantendo a mesma velocidade, quantas milhas percorrerá em 5 horas?
+A) 120   B) 150   C) 160   D) 180`;
+
+  const PORT_PLACEHOLDER = `Ex.: Assinale a alternativa em que a concordância verbal está de acordo com a norma-padrão:
+A) Fazem dois anos que ele embarcou.
+B) Existem vários motivos para a demora.
+C) Aluga-se quartos próximos ao porto.
+D) Vai fazer dois meses que ele partiu.`;
+
+  const SUBJECT_LABELS = { matematica: 'Matemática', portugues: 'Português' };
+
+  // Lista padronizada de temas — usada para classificar toda questão de forma consistente
+  const MATH_TOPICS = [
+    'Operações Básicas', 'Frações', 'Números Decimais', 'Porcentagem',
+    'Regra de Três Simples', 'Regra de Três Composta', 'Razão e Proporção', 'Conjuntos',
+    'Equações do 1º Grau', 'Equações do 2º Grau', 'Sistemas de Equações', 'Funções',
+    'Geometria Plana', 'Geometria Espacial', 'Trigonometria', 'Estatística e Probabilidade',
+    'Progressões (PA e PG)', 'Unidades de Medida e Conversão', 'Juros Simples e Compostos',
+    'Potenciação e Radiciação', 'Média Aritmética'
+  ];
+  const PORT_TOPICS = [
+    'Interpretação de Texto', 'Classes de Palavras (Morfologia)', 'Sintaxe (Termos da Oração)',
+    'Concordância Verbal', 'Concordância Nominal', 'Regência Verbal e Nominal', 'Crase',
+    'Pontuação', 'Ortografia e Acentuação', 'Semântica e Conectivos', 'Figuras de Linguagem',
+    'Tipologia e Gênero Textual', 'Coesão e Coerência Textual', 'Vozes Verbais', 'Colocação Pronominal'
+  ];
+  const SUBJECT_TOPICS = { matematica: MATH_TOPICS, portugues: PORT_TOPICS };
+
+  let selectedLevel = "Automático";
+  let activeSubject = "matematica";
+  const subjectState = {
+    matematica: { inputValue: '', resultHtml: '', searchQuery: '' },
+    portugues: { inputValue: '', resultHtml: '', searchQuery: '' }
+  };
+
+  const solveBtn = document.getElementById('solveBtn');
+  const resultEl = document.getElementById('result');
+  const inputEl = document.getElementById('questionInput');
+  const bankListEl = document.getElementById('bankList');
+  const bankLabelEl = document.getElementById('bankLabel');
+  const fieldLabelEl = document.getElementById('fieldLabel');
+  const subjectTabsEl = document.getElementById('subjectTabs');
+  const bankSearchInput = document.getElementById('bankSearchInput');
+  const bankSearchBtn = document.getElementById('bankSearchBtn');
+
+  function applySubjectUI(){
+    inputEl.placeholder = activeSubject === 'matematica' ? MATH_PLACEHOLDER : PORT_PLACEHOLDER;
+    fieldLabelEl.textContent = activeSubject === 'matematica'
+      ? 'Cole o enunciado e as alternativas'
+      : 'Cole o enunciado, o texto-base (se houver) e as alternativas';
+    bankLabelEl.textContent = 'Diário de bordo — ' + SUBJECT_LABELS[activeSubject];
+    bankSearchInput.value = subjectState[activeSubject].searchQuery || '';
+    [...subjectTabsEl.children].forEach(b => b.classList.toggle('active', b.dataset.subject === activeSubject));
+  }
+
+  subjectTabsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-subject]');
+    if(!btn) return;
+    const nextSubject = btn.dataset.subject;
+    if(nextSubject === activeSubject) return;
+
+    subjectState[activeSubject].inputValue = inputEl.value;
+    subjectState[activeSubject].resultHtml = resultEl.innerHTML;
+
+    activeSubject = nextSubject;
+    applySubjectUI();
+    inputEl.value = subjectState[activeSubject].inputValue || '';
+    resultEl.innerHTML = subjectState[activeSubject].resultHtml || '';
+    renderBank();
+  });
+
+  bankSearchInput.addEventListener('input', () => {
+    subjectState[activeSubject].searchQuery = bankSearchInput.value;
+    renderBank();
+  });
+  bankSearchInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); renderBank(); }
+  });
+  bankSearchBtn.addEventListener('click', () => renderBank());
+
+  applySubjectUI();
+
+  // ---------- Diário de bordo: armazenamento persistente ----------
+  async function loadIndex(){
+    try{
+      const res = await window.storage.get('bank-index', false);
+      return res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      return [];
+    }
+  }
+  async function saveIndexList(list){
+    try{
+      await window.storage.set('bank-index', JSON.stringify(list), false);
+    }catch(e){ console.error('Erro ao salvar índice do diário:', e); }
+  }
+  async function saveQuestionRecord(id, record){
+    try{
+      await window.storage.set('question-' + id, JSON.stringify(record), false);
+    }catch(e){ console.error('Erro ao salvar questão:', e); }
+  }
+  async function getQuestionRecord(id){
+    try{
+      const res = await window.storage.get('question-' + id, false);
+      return res && res.value ? JSON.parse(res.value) : null;
+    }catch(e){ return null; }
+  }
+  async function deleteQuestionRecord(id){
+    try{
+      await window.storage.delete('question-' + id, false);
+    }catch(e){ console.error('Erro ao excluir questão:', e); }
+  }
+
+  // Classifica o tema de uma questão isoladamente (chamada leve, sem gerar rota/aula)
+  async function classifyTopic(questionText, subject){
+    const subjectLabel = SUBJECT_LABELS[subject] || 'Matemática';
+    const topicsForSubject = SUBJECT_TOPICS[subject] ? SUBJECT_TOPICS[subject].join(', ') : SUBJECT_TOPICS.matematica.join(', ');
+    const prompt = `Classifique o tema desta questão de ${subjectLabel} da Marinha Mercante, escolhendo o mais próximo desta lista padronizada: ${topicsForSubject}. Se nada se encaixar bem, crie um nome curto (2-3 palavras) no mesmo estilo. Responda APENAS com o nome do tema, sem mais nada, sem aspas, sem pontuação final.
+
+Questão:
+"""${questionText}"""`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await response.json();
+    if(data.error) throw new Error(data.error.message || 'erro ao classificar tema');
+    const text = (data.content || []).map(b => b.text || '').join('').trim();
+    return text.split('\n')[0].replace(/^["'*\-\s]+|["'*\-\s]+$/g, '').slice(0, 60) || 'Tema não classificado';
+  }
+
+  // Reclassifica retroativamente questões salvas antes de existir o campo "tema"
+  async function backfillMissingTopics(){
+    try{
+      const list = await loadIndex();
+      const missing = list.filter(it => !it.tema);
+      if(!missing.length) return;
+
+      for(const item of missing){
+        try{
+          const record = await getQuestionRecord(item.id);
+          if(!record || !record.questionText) continue;
+          const subject = record.subject || item.subject || 'matematica';
+          const tema = await classifyTopic(record.questionText, subject);
+
+          record.tema = tema;
+          if(record.solved) record.solved.tema = tema;
+          await saveQuestionRecord(item.id, record);
+
+          const idx = await loadIndex();
+          const updated = idx.map(it => it.id === item.id ? { ...it, tema } : it);
+          await saveIndexList(updated);
+        }catch(innerErr){
+          console.error('Falha ao reclassificar tema da questão', item.id, innerErr);
+        }
+      }
+      renderBank();
+    }catch(e){
+      console.error('Erro na reclassificação retroativa de temas:', e);
+    }
+  }
+
+  async function renderBank(){
+    if(!bankListEl) return;
+    const list = await loadIndex();
+    const query = (subjectState[activeSubject].searchQuery || '').trim().toLowerCase();
+    let filtered = list.filter(item => (item.subject || 'matematica') === activeSubject);
+    if(query){
+      filtered = filtered.filter(item =>
+        ((item.tema || '') + ' ' + (item.preview || '') + ' ' + (item.nivel || ''))
+          .toLowerCase().includes(query)
+      );
+    }
+    if(!filtered.length){
+      const subjLabel = SUBJECT_LABELS[activeSubject];
+      bankListEl.innerHTML = query
+        ? `<div class="bank-empty">Nenhuma questão de ${subjLabel} encontrada para "${escapeHtml(bankSearchInput.value.trim())}".</div>`
+        : `<div class="bank-empty">Nenhuma questão de ${subjLabel} salva ainda. Resolva uma questão acima — ela aparece aqui automaticamente, com a rota e a aula prontas para reabrir sem colar de novo.</div>`;
+      return;
+    }
+    bankListEl.innerHTML = filtered.map(item => `
+      <div class="bank-item">
+        <button class="bank-item-main" data-action="open" data-id="${escapeHtml(item.id)}">
+          <span class="bank-tag">${item.hasLesson ? '<span class="lesson-dot"></span>' : ''}${escapeHtml(item.tema || 'Tema não classificado')} · ${escapeHtml(item.nivel || '—')}</span>
+          <p class="bank-preview">${escapeHtml(item.preview)}</p>
+        </button>
+        <button class="bank-delete" data-action="delete" data-id="${escapeHtml(item.id)}" aria-label="Excluir questão salva" title="Excluir">✕</button>
+      </div>
+    `).join('');
+  }
+
+  if(bankListEl){
+    bankListEl.addEventListener('click', async (e) => {
+      const delBtn = e.target.closest('[data-action="delete"]');
+      const openBtn = e.target.closest('[data-action="open"]');
+
+      if(delBtn){
+        const id = delBtn.dataset.id;
+        await deleteQuestionRecord(id);
+        let list = await loadIndex();
+        list = list.filter(x => x.id !== id);
+        await saveIndexList(list);
+        renderBank();
+        return;
+      }
+
+      if(openBtn){
+        const id = openBtn.dataset.id;
+        const record = await getQuestionRecord(id);
+        if(!record) return;
+        inputEl.value = record.questionText || '';
+        subjectState[activeSubject].currentEntryId = id;
+        render(record.solved);
+        solveBtn.disabled = false;
+        if(record.lesson){
+          renderLesson(record.lesson);
+        }else{
+          const lessonEl = document.getElementById('lesson');
+          if(lessonEl){
+            lessonEl.innerHTML = `<div class="error-box">Essa questão foi salva antes da aula completa ser gerada. Clique em "Traçar rota da resolução" novamente para gerá-la.</div>`;
+          }
+        }
+        resultEl.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    });
+  }
+
+  renderBank();
+  backfillMissingTopics();
+
+  function escapeHtml(str){
+    if(str===undefined || str===null) return '';
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Converte **termo** em destaque visual e quebra o texto em parágrafos legíveis
+  function formatText(str){
+    if(!str) return '';
+    const escaped = escapeHtml(str);
+    const highlighted = escaped.replace(/\*\*(.+?)\*\*/g, '<span class="term">$1</span>');
+    const paragraphs = highlighted.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+    const list = paragraphs.length ? paragraphs : [highlighted];
+    return list.map(p => `<p>${p.replace(/\n/g,' ')}</p>`).join('');
+  }
+
+  function letterClass(alt){
+    return alt.correta ? 'alt correct' : 'alt wrong';
+  }
+
+  // Guarda os últimos dados renderizados pra montar o texto copiável (resolução + aula)
+  let currentCopyData = { solved: null, lesson: null };
+
+  function stripHighlight(str){
+    return (str || '').replace(/\*\*(.+?)\*\*/g, '$1');
+  }
+
+  function buildCopyText(){
+    const s = currentCopyData.solved;
+    if(!s) return '';
+    const lines = [];
+
+    lines.push(`TEMA: ${s.tema || '—'}`);
+    lines.push(`MATÉRIA: ${s.materia || '—'} | NÍVEL: ${s.nivel || '—'}`);
+    lines.push('');
+    lines.push('QUESTÃO:');
+    lines.push(inputEl.value.trim());
+    lines.push('');
+    lines.push(`RESPOSTA FINAL: ${s.alternativa_correta || '—'} — ${s.resposta_final || ''}`);
+    lines.push('');
+    lines.push('ROTA DE RESOLUÇÃO:');
+    (s.passos || []).forEach((p, i) => {
+      lines.push(`${i+1}. ${p.titulo || ''}${p.regra ? ' [' + p.regra + ']' : ''}`);
+      if(p.explicacao) lines.push(`   ${stripHighlight(p.explicacao)}`);
+      if(p.calculo) lines.push(`   → ${p.calculo}`);
+    });
+
+    if((s.alternativas || []).length){
+      lines.push('');
+      lines.push('ANÁLISE DAS ALTERNATIVAS:');
+      s.alternativas.forEach(a => {
+        const marca = a.correta ? '✔' : '✘';
+        lines.push(`${marca} ${a.letra}) ${a.texto || ''}${a.motivo_erro ? ' — ' + stripHighlight(a.motivo_erro) : ''}`);
+      });
+    }
+
+    if(s.macete){
+      lines.push('');
+      lines.push(`MACETE DE PROVA: ${s.macete}`);
+    }
+
+    const l = currentCopyData.lesson;
+    if(l){
+      lines.push('');
+      lines.push('---');
+      lines.push('AULA DO TEMA');
+      if(l.o_que_a_questao_pede){ lines.push(''); lines.push('O que essa questão testa:'); lines.push(stripHighlight(l.o_que_a_questao_pede)); }
+      if(l.como_interpretar){ lines.push(''); lines.push('Como interpretar o enunciado:'); lines.push(stripHighlight(l.como_interpretar)); }
+      if(l.explicacao_da_regra){ lines.push(''); lines.push('A matéria explicada:'); lines.push(stripHighlight(l.explicacao_da_regra)); }
+      if(l.erro_comum){ lines.push(''); lines.push('Erro comum:'); lines.push(stripHighlight(l.erro_comum)); }
+      if(l.youtube_busca){ lines.push(''); lines.push(`Buscar no YouTube: ${l.youtube_busca}`); }
+    }
+
+    lines.push('');
+    lines.push('(Use este material para gerar questões semelhantes sobre o mesmo tema e continuar treinando.)');
+
+    return lines.join('\n');
+  }
+
+  async function handleCopyClick(btn){
+    const text = buildCopyText();
+    if(!text) return;
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      // Fallback pra navegadores/ambientes sem permissão de clipboard
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); }catch(e2){}
+      document.body.removeChild(ta);
+    }
+    if(btn){
+      const original = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML = '✓ Copiado!';
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = original; }, 1800);
+    }
+  }
+
+  function render(data){
+    const passosHtml = (data.passos || []).map((p, i) => `
+      <div class="waypoint">
+        <div class="buoy">${i+1}</div>
+        <h3>${escapeHtml(p.titulo)}</h3>
+        ${p.regra ? `<span class="rule-tag">${escapeHtml(p.regra)}</span>` : ''}
+        ${formatText(p.explicacao)}
+        ${p.calculo ? `<div class="calc-line">${escapeHtml(p.calculo)}</div>` : ''}
+      </div>
+    `).join('');
+
+    const altsHtml = (data.alternativas || []).map(a => `
+      <div class="${letterClass(a)}">
+        <div class="letter">${escapeHtml(a.letra)}</div>
+        <div class="alt-body">
+          <div class="alt-text">${escapeHtml(a.texto || '')}</div>
+          <div class="alt-reason">${escapeHtml(a.motivo_erro || (a.correta ? 'É a alternativa correta — veja a rota de resolução acima.' : ''))}</div>
+        </div>
+      </div>
+    `).join('');
+
+    resultEl.innerHTML = `
+      <div class="result-toolbar">
+        <div class="topic-badge">🏷️ Tema: <span class="topic-name">${escapeHtml(data.tema || 'Tema não classificado')}</span></div>
+        <button class="copy-btn" id="copyBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar para estudo
+        </button>
+      </div>
+
+      <div class="final-answer">
+        <span class="tag">Resposta final</span>
+        <span class="value">${escapeHtml(data.alternativa_correta || '—')} — ${escapeHtml(data.resposta_final || '')}</span>
+      </div>
+
+      <div class="meta-row">
+        <span><b>Matéria:</b> ${escapeHtml(data.materia || '—')}</span>
+        <span><b>Nível identificado:</b> ${escapeHtml(data.nivel || '—')}</span>
+      </div>
+
+      <div class="section-label">Rota de resolução</div>
+      <div class="route">${passosHtml}</div>
+
+      ${altsHtml ? `<div class="alts-title">Por que cada alternativa está certa ou errada</div>${altsHtml}` : ''}
+
+      ${data.macete ? `
+        <div class="macete">
+          <div class="icon">⚓</div>
+          <div class="txt"><b>Macete de prova</b>${escapeHtml(data.macete)}</div>
+        </div>` : ''}
+
+      <div class="lesson" id="lesson"></div>
+    `;
+
+    currentCopyData = { solved: data, lesson: null };
+    const copyBtn = document.getElementById('copyBtn');
+    if(copyBtn) copyBtn.addEventListener('click', () => handleCopyClick(copyBtn));
+  }
+
+  function renderLessonLoading(){
+    const lessonEl = document.getElementById('lesson');
+    if(!lessonEl) return;
+    lessonEl.innerHTML = `
+      <div class="lesson-status">
+        <span class="dot-pulse"></span>
+        Preparando a aula completa sobre esse tema…
+      </div>`;
+  }
+
+  function renderLesson(data){
+    const lessonEl = document.getElementById('lesson');
+    if(!lessonEl) return;
+    lessonEl.innerHTML = `
+      <div class="lesson-title">Aula do tema</div>
+      <span class="lesson-tema">${escapeHtml(data.tema || '')}</span>
+
+      ${data.o_que_a_questao_pede ? `
+      <div class="lesson-block">
+        <h4>🎯 O que essa questão está testando</h4>
+        ${formatText(data.o_que_a_questao_pede)}
+      </div>` : ''}
+
+      ${data.como_interpretar ? `
+      <div class="lesson-block">
+        <h4>🧭 Como interpretar o enunciado</h4>
+        ${formatText(data.como_interpretar)}
+      </div>` : ''}
+
+      ${data.explicacao_da_regra ? `
+      <div class="lesson-block">
+        <h4>📖 A matéria explicada</h4>
+        ${formatText(data.explicacao_da_regra)}
+      </div>` : ''}
+
+      ${data.erro_comum ? `
+      <div class="lesson-block warn">
+        <h4>⚠️ Erro comum de quem erra essa questão</h4>
+        ${formatText(data.erro_comum)}
+      </div>` : ''}
+
+      ${data.youtube_busca ? `
+      <div class="youtube-box">
+        <div class="icon">▶️</div>
+        <div class="txt">
+          <b>Quer se aprofundar mais?</b>
+          Pesquise no YouTube: <span class="kw">${escapeHtml(data.youtube_busca)}</span>
+          <br>
+          <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(data.youtube_busca)}" target="_blank" rel="noopener noreferrer">
+            Abrir busca no YouTube ↗
+          </a>
+        </div>
+      </div>` : ''}
+    `;
+
+    currentCopyData.lesson = data;
+  }
+
+  function renderLessonError(msg){
+    const lessonEl = document.getElementById('lesson');
+    if(!lessonEl) return;
+    lessonEl.innerHTML = `<div class="error-box"><b>Não consegui gerar a aula completa.</b><br>${escapeHtml(msg)}</div>`;
+  }
+
+  async function solve(){
+    const subjectAtStart = activeSubject;
+    const subjectLabel = SUBJECT_LABELS[subjectAtStart];
+    const question = inputEl.value.trim();
+    if(!question){
+      resultEl.innerHTML = `<div class="error-box">Cole o enunciado da questão antes de traçar a rota.</div>`;
+      return;
+    }
+
+    solveBtn.disabled = true;
+    resultEl.innerHTML = `
+      <div class="status-line">
+        <span class="dot-pulse"></span>
+        Lendo a questão e traçando a rota de resolução…
+      </div>`;
+
+    const disciplinaExtra = subjectAtStart === 'portugues'
+      ? `Esta é uma questão de PORTUGUÊS. No campo "calculo", em vez de uma conta, use o trecho da frase, palavra ou regra gramatical específica que fundamenta o passo (ex: "concordância com o sujeito 'os motivos' → verbo no plural"). Foque em interpretação textual, classes de palavras, função sintática, concordância, regência, pontuação, valor semântico de conectivos ou o que for pertinente à questão.`
+      : `Esta é uma questão de MATEMÁTICA. No campo "calculo", mostre a conta ou manipulação numérica em si, como texto simples (ex: 240 ÷ 8 = 30 milhas/hora).`;
+
+    const topicsForSubject = SUBJECT_TOPICS[subjectAtStart].join(', ');
+
+    const systemPrompt = `Você é o Agente IA Marinha Mercante, professor especialista em preparar candidatos para os exames CFAQ, CAAQ e ASON/M (Matemática e Português).
+
+A disciplina desta questão é: ${subjectLabel}. ${disciplinaExtra}
+
+A PRIMEIRA coisa que você deve fazer, antes de qualquer outra coisa, é classificar o TEMA da questão. Escolha o tema mais próximo desta lista padronizada de ${subjectLabel} (use sempre estes nomes exatos quando um deles se aplicar, para manter consistência entre questões): ${topicsForSubject}. Se nenhum tema da lista realmente se encaixar, crie um nome curto (2-3 palavras) no mesmo estilo dos exemplos.
+
+Receberá uma questão colada pelo aluno (enunciado + alternativas) e o nível de prova indicado ("${selectedLevel}"; se for "Automático", estime o nível pela complexidade da questão).
+
+Sua tarefa: classificar o tema, depois desmembrar a resolução em um passo a passo didático, explicando o PORQUÊ de cada etapa (qual regra, propriedade ou conceito está sendo usado), e por fim analisar cada alternativa.
+
+Responda APENAS com um objeto JSON válido, compacto, sem markdown, sem crases, sem texto antes ou depois, seguindo exatamente este formato (o campo "tema" vem primeiro, pois é sua primeira decisão):
+
+{
+  "tema": "nome do tema, escolhido da lista padronizada acima",
+  "materia": "${subjectLabel}",
+  "nivel": "CFAQ" | "CAAQ" | "ASON/M",
+  "passos": [
+    { "titulo": "string curta", "regra": "nome da regra/propriedade/conceito usado", "explicacao": "no máximo 20 palavras", "calculo": "conforme instrução acima, curto, como texto simples" }
+  ],
+  "alternativa_correta": "letra da alternativa correta, ex: C",
+  "resposta_final": "o valor ou resultado final em texto curto",
+  "alternativas": [
+    { "letra": "A", "texto": "texto da alternativa se disponível, ou o valor", "correta": false, "motivo_erro": "no máximo 15 palavras explicando por que está errada" }
+  ],
+  "macete": "uma dica prática em no máximo 20 palavras"
+}
+
+IMPORTANTE — limite de espaço: gere no MÁXIMO 4 passos, e seja extremamente conciso em cada campo de texto (respeite os limites de palavras indicados). A resposta JSON completa precisa ser curta o suficiente para nunca ser cortada. Seja preciso. Se a questão fornecida não trouxer o texto das alternativas, apenas preencha "letra" e deixe "texto" vazio.
+
+Dentro dos campos "explicacao" e "motivo_erro", destaque os 1-3 termos, números ou nomes de regra mais importantes de cada frase envolvendo-os em duplo asterisco, assim: **regra de três simples**, **concordância verbal**. Não exagere no destaque — só o essencial.`;
+
+    try{
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [
+            { role: "user", content: question }
+          ]
+        })
+      });
+
+      const data = await response.json();
+
+      if(data.error){
+        throw new Error("API: " + (data.error.message || JSON.stringify(data.error)));
+      }
+
+      const rawText = (data.content || []).map(b => b.text || '').join('').trim();
+
+      if(!rawText){
+        throw new Error("A API não retornou texto. Resposta bruta: " + JSON.stringify(data).slice(0, 500));
+      }
+
+      // Extrai o bloco JSON mesmo que venha com crases ou texto ao redor
+      let cleaned = rawText.replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      if(firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace){
+        cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+      }
+
+      let parsed;
+      try{
+        parsed = JSON.parse(cleaned);
+      }catch(parseErr){
+        throw new Error("Resposta veio incompleta ou em formato inesperado. Trecho recebido: " + cleaned.slice(0, 400));
+      }
+
+      parsed.materia = subjectLabel;
+      if(!parsed.tema) parsed.tema = 'Tema não classificado';
+
+      if(subjectAtStart === activeSubject){
+        render(parsed);
+      }
+      solveBtn.disabled = false;
+
+      // Salva no diário de bordo (dados vinculados à sua conta, não são visíveis a outras pessoas)
+      const entryId = 'q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      subjectState[subjectAtStart].currentEntryId = entryId;
+      const record = {
+        id: entryId,
+        subject: subjectAtStart,
+        questionText: question,
+        level: selectedLevel,
+        solved: parsed,
+        lesson: null,
+        timestamp: Date.now()
+      };
+      await saveQuestionRecord(entryId, record);
+      let idx = await loadIndex();
+      idx.unshift({
+        id: entryId,
+        subject: subjectAtStart,
+        preview: question.length > 100 ? question.slice(0, 100) + '…' : question,
+        tema: parsed.tema || 'Tema não classificado',
+        materia: subjectLabel,
+        nivel: parsed.nivel || selectedLevel,
+        hasLesson: false,
+        timestamp: record.timestamp
+      });
+      if(idx.length > 80) idx = idx.slice(0, 80);
+      await saveIndexList(idx);
+      if(subjectAtStart === activeSubject) renderBank();
+
+      // Segunda chamada, separada: aula completa e didática sobre o tema
+      if(subjectAtStart === activeSubject) renderLessonLoading();
+      await fetchLesson(question, parsed, subjectAtStart, entryId);
+
+    }catch(err){
+      console.error(err);
+      if(subjectAtStart === activeSubject){
+        resultEl.innerHTML = `<div class="error-box"><b>Não consegui traçar a rota dessa questão.</b><br>${escapeHtml(err.message || String(err))}</div>`;
+      }
+      solveBtn.disabled = false;
+    }
+  }
+
+  async function fetchLesson(question, solved, subjectAtStart, entryId){
+    const subjectLabel = SUBJECT_LABELS[subjectAtStart];
+    const disciplinaExtra = subjectAtStart === 'portugues'
+      ? 'Foque em explicar a regra gramatical, o conceito de interpretação textual ou a norma-padrão envolvida — não em contas.'
+      : 'Foque em explicar a regra matemática, propriedade ou raciocínio lógico envolvido, podendo usar um exemplo numérico simples.';
+
+    const lessonSystemPrompt = `Você é o Agente IA Marinha Mercante, professor especialista em preparar candidatos para os exames CFAQ, CAAQ e ASON/M.
+
+O aluno já viu a resolução objetiva de uma questão de ${subjectLabel}. Agora você vai dar uma AULA mais completa e didática sobre o tema por trás dela, como se estivesse explicando do zero para alguém que está com dificuldade na matéria. ${disciplinaExtra} Use linguagem simples, direta e acolhedora, como um professor experiente falando pessoalmente com o aluno. Pode usar um exemplo adicional (diferente da questão) se ajudar a fixar o conceito.
+
+A questão original foi:
+"""${question}"""
+
+O tema já foi classificado como: "${solved.tema || subjectLabel}". Use exatamente esse nome no marcador [TEMA] a seguir, para manter consistência com a rota de resolução.
+
+Responda em TEXTO SIMPLES (não use JSON, não use markdown, não use crases), usando EXATAMENTE estes marcadores, cada um em uma linha própria antes do respectivo texto, nesta ordem:
+
+[TEMA]
+nome da matéria/regra principal, em poucas palavras
+
+[O_QUE_PEDE]
+2-3 frases explicando qual habilidade está sendo testada e por que isso é comum na prova
+
+[COMO_INTERPRETAR]
+3-5 frases explicando quais palavras e pistas do enunciado indicam qual regra ou operação usar, ensinando o aluno a reconhecer isso sozinho da próxima vez
+
+[REGRA]
+Explicação didática da matéria em si, do zero, como uma mini-aula, podendo usar um exemplo adicional. Esta é a seção mais longa.
+
+[ERRO_COMUM]
+2-3 frases sobre o erro mais comum que alunos cometem nesse tipo de questão e como evitá-lo
+
+[YOUTUBE]
+Uma única linha curta com boas palavras-chave em português para o aluno colar na busca do YouTube e encontrar videoaulas sobre esse tema específico (ex: "regra de três simples videoaula concurso" ou "concordância verbal sujeito composto exercícios"). Sem aspas, sem explicação, só as palavras-chave.
+
+Seja detalhado e claro na seção [REGRA], mas direto nas demais, sem enrolação. Não escreva nada fora desses marcadores.
+
+FORMATAÇÃO — importante para a legibilidade:
+- Destaque os termos, nomes de regra e palavras-chave mais importantes de cada seção envolvendo-os em duplo asterisco, assim: **regra de três simples**, **concordância verbal**, **sujeito composto**. Destaque só o essencial (2-4 termos por seção), não a frase toda.
+- Na seção [REGRA], separe o texto em 2 a 3 parágrafos curtos, com uma linha em branco entre eles, em vez de um bloco único.`;
+
+    try{
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          system: lessonSystemPrompt,
+          messages: [
+            { role: "user", content: "Gere a aula completa sobre o tema dessa questão." }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      if(data.error){
+        throw new Error("API: " + (data.error.message || JSON.stringify(data.error)));
+      }
+
+      const rawText = (data.content || []).map(b => b.text || '').join('').trim();
+      if(!rawText){
+        throw new Error("A API não retornou texto para a aula.");
+      }
+
+      const markerMap = [
+        ['[TEMA]', 'tema'],
+        ['[O_QUE_PEDE]', 'o_que_a_questao_pede'],
+        ['[COMO_INTERPRETAR]', 'como_interpretar'],
+        ['[REGRA]', 'explicacao_da_regra'],
+        ['[ERRO_COMUM]', 'erro_comum'],
+        ['[YOUTUBE]', 'youtube_busca']
+      ];
+
+      const parsedLesson = {};
+      for(let i = 0; i < markerMap.length; i++){
+        const [marker, key] = markerMap[i];
+        const start = rawText.indexOf(marker);
+        if(start === -1) continue;
+        const afterMarker = start + marker.length;
+        let end = rawText.length;
+        for(let j = i + 1; j < markerMap.length; j++){
+          const nextIdx = rawText.indexOf(markerMap[j][0], afterMarker);
+          if(nextIdx !== -1){ end = nextIdx; break; }
+        }
+        parsedLesson[key] = rawText.slice(afterMarker, end).trim();
+      }
+
+      if(!parsedLesson.tema && !parsedLesson.explicacao_da_regra){
+        throw new Error("Não encontrei os marcadores esperados na resposta. Trecho recebido: " + rawText.slice(0, 400));
+      }
+
+      if(subjectAtStart === activeSubject){
+        renderLesson(parsedLesson);
+      }
+
+      // Atualiza o registro salvo no diário de bordo com a aula completa
+      const rec = await getQuestionRecord(entryId);
+      if(rec){
+        rec.lesson = parsedLesson;
+        await saveQuestionRecord(entryId, rec);
+      }
+      let idx = await loadIndex();
+      idx = idx.map(it => it.id === entryId ? { ...it, hasLesson: true } : it);
+      await saveIndexList(idx);
+      if(subjectAtStart === activeSubject) renderBank();
+
+    }catch(err){
+      console.error(err);
+      if(subjectAtStart === activeSubject){
+        renderLessonError(err.message || String(err));
+      }
+    }
+  }
+
+  solveBtn.addEventListener('click', solve);
+</script>
+</body>
+</html>
