@@ -3,7 +3,6 @@ export type Subject = "matematica" | "portugues";
 export interface SolvedQuestion {
   tema: string;
   materia: string;
-  nivel: string;
   passos: Array<{
     titulo: string;
     regra?: string;
@@ -19,6 +18,11 @@ export interface SolvedQuestion {
     motivo_erro?: string;
   }>;
   macete?: string;
+  figura?: {
+    tipo: "triangulo" | "retangulo" | "quadrado" | "trapezio" | "circulo" | "paralelogramo" | "losango";
+    medidas: Array<{ chave: string; valor: string }>;
+    formula: string;
+  } | null;
 }
 
 export interface Lesson {
@@ -40,4 +44,6 @@ export interface QuestionRecord {
   solved?: SolvedQuestion | null;
   lesson?: Lesson | null;
   createdAt: string;
+  reviewedAt?: string | null;
+  attention: boolean;
 }

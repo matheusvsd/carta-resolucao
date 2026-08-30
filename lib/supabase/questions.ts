@@ -20,10 +20,12 @@ export async function fetchQuestions(subject: Subject): Promise<QuestionRecord[]
     solved: row.solved,
     lesson: row.lesson,
     createdAt: row.created_at,
+    reviewedAt: row.reviewed_at,
+    attention: row.attention ?? false,
   }));
 }
 
-export async function saveQuestion(record: Omit<QuestionRecord, "id" | "createdAt">) {
+export async function saveQuestion(record: Omit<QuestionRecord, "id" | "createdAt" | "reviewedAt" | "attention">) {
   const { data, error } = await supabase
     .from("questions")
     .insert({
@@ -44,5 +46,21 @@ export async function saveQuestion(record: Omit<QuestionRecord, "id" | "createdA
 
 export async function deleteQuestion(id: string) {
   const { error } = await supabase.from("questions").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function markReviewed(id: string) {
+  const { error } = await supabase
+    .from("questions")
+    .update({ reviewed_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function toggleAttention(id: string, attention: boolean) {
+  const { error } = await supabase
+    .from("questions")
+    .update({ attention })
+    .eq("id", id);
   if (error) throw error;
 }
