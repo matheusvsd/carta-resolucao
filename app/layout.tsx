@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { NavMenu } from "@/components/nav-menu";
 
 export const metadata: Metadata = {
   title: "Carta de Resolução — Marinha Mercante",
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <NavMenu />
+        {children}
+      </body>
     </html>
   );
 }
