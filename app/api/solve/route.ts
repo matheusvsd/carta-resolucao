@@ -59,7 +59,7 @@ fora dos campos de texto, sem crases, seguindo exatamente esta estrutura:
   "passos": [
     { "titulo": string, "regra": string, "explicacao": string, "calculo": string }
   ],
-  "alternativa_correta": string,
+  "alternativa_correta": string (APENAS a letra maiúscula, ex: "C", sem parênteses, sem texto),
   "resposta_final": string,
   "alternativas": [
     { "letra": string, "texto": string, "correta": boolean, "motivo_erro": string }

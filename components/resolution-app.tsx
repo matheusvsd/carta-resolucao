@@ -181,7 +181,8 @@ export function ResolutionApp() {
     if (!selected || !selected.solved) return;
     setAnswering(true);
     try {
-      const acertou = letra === selected.solved.alternativa_correta;
+      const normalizar = (s: string) => s.trim().toUpperCase().replace(/[^A-E]/g, "");
+      const acertou = normalizar(letra) === normalizar(selected.solved.alternativa_correta ?? "");
       await submitAnswer(selected.id, letra, acertou);
       const now = new Date().toISOString();
       const updated = { ...selected, respostaUsuario: letra, acertou, answeredAt: now };

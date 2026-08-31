@@ -90,3 +90,40 @@ export async function clearAnswer(id: string) {
     .eq("id", id);
   if (error) throw error;
 }
+
+
+export interface DesempenhoTema {
+  tema: string;
+  total: number;
+  acertos: number;
+  erros: number;
+  pctAcerto: number;
+}
+
+export async function fetchDesempenho(subject: Subject): Promise<DesempenhoTema[]> {
+  const { data, error } = await supabase
+    .from("questions")
+    .select("tema, acertou")
+    .eq("subject", subject)
+    .not("acertou", "is", null);
+
+  if (error) throw error;
+
+  const map = new Map<string, { total: number; acertos: number }>();
+  for (const row of data ?? []) {
+    const atual = map.get(row.tema) ?? { total: 0, acertos: 0 };
+    atual.total += 1;
+    if (row.acertou) atual.acertos += 1;
+    map.set(row.tema, atual);
+  }
+
+  return Array.from(map.entries())
+    .map(([tema, v]) => ({
+      tema,
+      total: v.total,
+      acertos: v.acertos,
+      erros: v.total - v.acertos,
+      pctAcerto: Math.round((v.acertos / v.total) * 100),
+    }))
+    .sort((a, b) => a.pctAcerto - b.pctAcerto);
+}
