@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { QuestionRecord, Subject } from "@/types/question";
 import { SUBJECT_LABELS } from "@/lib/topics";
 import { fetchQuestions, saveQuestion, deleteQuestion, markReviewed, toggleAttention } from "@/lib/supabase/questions";
@@ -30,9 +31,12 @@ function renderHighlighted(text?: string) {
 }
 
 export function ResolutionApp() {
-  const [subject, setSubject] = useState<Subject>("matematica");
+  const searchParams = useSearchParams();
+  const [subject, setSubject] = useState<Subject>(
+    (searchParams.get("subject") as Subject) || "matematica"
+  );
   const [question, setQuestion] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("tema") || "");
   const [questions, setQuestions] = useState<QuestionRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [solving, setSolving] = useState(false);
