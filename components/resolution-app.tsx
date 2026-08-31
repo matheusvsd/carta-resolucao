@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { QuestionRecord, Subject } from "@/types/question";
 import { SUBJECT_LABELS } from "@/lib/topics";
-import { fetchQuestions, saveQuestion, deleteQuestion, markReviewed, toggleAttention } from "@/lib/supabase/questions";
+import { fetchQuestions, saveQuestion, deleteQuestion, markReviewed, toggleAttention, submitAnswer, clearAnswer } from "@/lib/supabase/questions";
 import { QuestionFigure } from "@/components/question-figure";
 
 const placeholders: Record<Subject, string> = {
@@ -16,6 +16,11 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 function isReviewedThisWeek(reviewedAt?: string | null) {
   if (!reviewedAt) return false;
   return Date.now() - new Date(reviewedAt).getTime() < WEEK_MS;
+}
+
+function extractEnunciado(text: string) {
+  const match = text.search(/\n\s*[A-E]\)/);
+  return match === -1 ? text : text.slice(0, match).trim();
 }
 
 function renderHighlighted(text?: string) {
@@ -42,6 +47,7 @@ export function ResolutionApp() {
   const [solving, setSolving] = useState(false);
   const [selected, setSelected] = useState<QuestionRecord | null>(null);
   const [bankTab, setBankTab] = useState<"diario" | "atencao">("diario");
+  const [answering, setAnswering] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -99,6 +105,9 @@ export function ResolutionApp() {
         createdAt: saved.created_at,
         reviewedAt: saved.reviewed_at,
         attention: saved.attention ?? false,
+        respostaUsuario: saved.resposta_usuario,
+        acertou: saved.acertou,
+        answeredAt: saved.answered_at,
       };
 
       setQuestions((prev) => [record, ...prev]);
@@ -147,6 +156,47 @@ export function ResolutionApp() {
     }
   }
 
+    async function handleRetry(id: string) {
+    try {
+      await clearAnswer(id);
+      setQuestions((prev) => prev.map((q) => q.id === id ? { ...q, respostaUsuario: null, acertou: null, answeredAt: null } : q));
+      setSelected((prev) => prev && prev.id === id ? { ...prev, respostaUsuario: null, acertou: null, answeredAt: null } : prev);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao refazer a questão.");
+    }
+  }
+
+
+  function handleNext() {
+    if (!selected) return;
+    const idx = filtered.findIndex((q) => q.id === selected.id);
+    if (idx === -1) return;
+    const next = filtered[(idx + 1) % filtered.length];
+    setSelected(next);
+  }
+
+
+  async function handleAnswer(letra: string) {
+    if (!selected || !selected.solved) return;
+    setAnswering(true);
+    try {
+      const acertou = letra === selected.solved.alternativa_correta;
+      await submitAnswer(selected.id, letra, acertou);
+      const now = new Date().toISOString();
+      const updated = { ...selected, respostaUsuario: letra, acertou, answeredAt: now };
+      setSelected(updated);
+      setQuestions((prev) => prev.map((q) => q.id === selected.id ? updated : q));
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao registrar sua resposta.");
+    } finally {
+      setAnswering(false);
+    }
+  }
+
+  const jaRespondida = !!selected?.respostaUsuario;
+
   return (
     <main className="wrap">
       <header>
@@ -187,8 +237,34 @@ export function ResolutionApp() {
         </div>
       </section>
 
-      {selected && selected.solved && (
+            {selected && selected.solved && !jaRespondida && (
+        <section className="chart recall-box">
+          <div className="recall-question-text">{extractEnunciado(selected.questionText)}</div>
+          <h3 className="recall-title">🎯 Qual é a alternativa correta?</h3>
+          <div className="recall-options">
+            {selected.solved.alternativas?.map((a: any) => (
+              <button key={a.letra} className="recall-option" disabled={answering} onClick={() => handleAnswer(a.letra)}>
+                <span className="alt-letra">{a.letra}</span>
+                <span>{a.texto}</span>
+              </button>
+            ))}
+          </div>
+          <div className="recall-locked-note">A resolução completa é liberada depois que você responder.</div>
+        </section>
+      )}
+
+            {selected && selected.solved && jaRespondida && (
         <section className="chart result-card">
+                    <div className={`recall-result ${selected.acertou ? "correto" : "errado"}`}>
+            <span>{selected.acertou ? "✓ Você acertou!" : `✗ Você errou. Marcou ${selected.respostaUsuario}, a certa é ${selected.solved.alternativa_correta}.`}</span>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="recall-retry-btn" onClick={() => handleRetry(selected.id)}>🔄 Refazer</button>
+              {filtered.length > 1 && (
+                <button className="recall-retry-btn" onClick={handleNext}>Próxima ▶</button>
+              )}
+            </div>
+          </div>
+
           <div className="result-tema-tag">🏷️ Tema: {selected.solved.tema}</div>
 
           <div className="result-final">
@@ -215,9 +291,10 @@ export function ResolutionApp() {
           <div className="section-label">Por que cada alternativa está certa ou errada</div>
           <div className="alt-list">
             {selected.solved.alternativas?.map((a: any) => (
-              <div key={a.letra} className={`alt-item ${a.correta ? "correct" : ""}`}>
+              <div key={a.letra} className={`alt-item ${a.correta ? "correct" : ""} ${selected.respostaUsuario === a.letra ? "your-pick" : ""}`}>
                 <span className="alt-letra">{a.letra}</span>
                 <span className="alt-texto">{a.texto}</span>
+                {selected.respostaUsuario === a.letra && <span className="your-pick-tag">sua resposta</span>}
                 {!a.correta && a.motivo_erro && (
                   <p className="alt-motivo">{renderHighlighted(a.motivo_erro)}</p>
                 )}
@@ -257,7 +334,7 @@ export function ResolutionApp() {
             </>
           )}
 
-          <div className="result-actions">
+                    <div className="result-actions">
             <button
               className={`action-btn ${isReviewedThisWeek(selected.reviewedAt) ? "reviewed" : ""}`}
               onClick={() => handleMarkReviewed(selected.id)}
@@ -270,6 +347,7 @@ export function ResolutionApp() {
             >
               {selected.attention ? "★ Atenção marcada" : "☆ Marcar atenção"}
             </button>
+            
           </div>
         </section>
       )}
@@ -293,7 +371,10 @@ export function ResolutionApp() {
           ) : filtered.map(q => (
             <div className={`bank-item ${!isReviewedThisWeek(q.reviewedAt) ? "pending-review" : ""}`} key={q.id}>
               <button className="bank-item-main" onClick={() => setSelected(q)}>
-                <span className="bank-tag">{q.tema}{q.attention ? " · ⭐" : ""}</span>
+                <span className="bank-tag">
+                  {q.tema}{q.attention ? " · ⭐" : ""}
+                  {q.respostaUsuario && (q.acertou ? " · ✓" : " · ✗")}
+                </span>
                 <p className="bank-preview">{q.preview}</p>
               </button>
               <button onClick={() => handleDelete(q.id)} style={{ marginLeft: "0.5rem" }}>🗑️</button>

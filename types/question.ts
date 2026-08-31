@@ -44,6 +44,9 @@ export interface QuestionRecord {
   solved?: SolvedQuestion | null;
   lesson?: Lesson | null;
   createdAt: string;
-  reviewedAt?: string | null;
+    reviewedAt?: string | null;
   attention: boolean;
+  respostaUsuario?: string | null;
+  acertou?: boolean | null;
+  answeredAt?: string | null;
 }

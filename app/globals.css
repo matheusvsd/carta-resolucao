@@ -142,3 +142,68 @@ footer{text-align:center;margin-top:30px;font-size:12px;color:#6F84A0;font-famil
 .topic-exemplos li{font-size:14px;line-height:1.6;color:var(--ink)}
 .topic-categoria-group{margin-bottom:22px}
 .topic-categoria-title{font-family:Fraunces,serif;font-weight:600;font-size:15px;color:var(--ink);margin-bottom:8px}
+
+
+
+/* ===== Flashcards (modo estudo) ===== */
+.fc-page-header{display:flex;align-items:center;justify-content:space-between;background:var(--ocean-mid);border:1px solid var(--ocean-line);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px}
+.fc-page-title{display:flex;align-items:center;gap:8px;color:var(--paper);font-family:Fraunces,serif;font-weight:600;font-size:15px}
+.fc-due-badge{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;background:var(--brass-bright);color:var(--ocean-deep);padding:6px 14px;border-radius:20px}
+
+.fc-card-wrap{max-width:520px;margin:0 auto}
+.fc-categoria-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px}
+.fc-categoria-left{display:flex;align-items:center;gap:8px;color:var(--paper);font-family:Fraunces,serif;font-weight:600;font-size:14.5px}
+.fc-dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.fc-dominado{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#9FB3C8}
+
+.fc-card{background:var(--ocean-mid);border:1px solid var(--ocean-line);border-radius:var(--radius-lg);padding:26px 24px;min-height:150px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);margin-bottom:14px}
+.fc-badge{display:inline-flex;width:fit-content;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--teal);color:var(--teal);border-radius:20px;padding:4px 12px;margin-bottom:14px}
+.fc-badge.resposta{border-color:var(--brass);color:var(--brass-bright)}
+.fc-pergunta-text{color:var(--paper);font-family:Fraunces,serif;font-weight:600;font-size:19px;line-height:1.4;margin:0 0 10px}
+.fc-hint{display:flex;align-items:center;gap:6px;color:#7B92AC;font-size:12.5px;font-family:'IBM Plex Mono',monospace}
+.fc-resposta-text{color:var(--paper);font-size:19px;line-height:1.5;margin:0 0 10px}
+.fc-resposta-text .hl{background:rgba(228,194,78,.18);color:var(--brass-bright)}
+.fc-fonte{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--brass)}
+
+.fc-reveal-btn{width:100%;background:linear-gradient(155deg,var(--brass-bright),var(--brass));color:var(--ocean-deep);font-family:Fraunces,serif;font-weight:600;font-size:15px;border:none;border-radius:var(--radius-md);padding:15px;cursor:pointer}
+
+.fc-rate-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.fc-rate-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border-radius:var(--radius-md);border:1.5px solid;background:var(--ocean-mid);cursor:pointer;font-family:Fraunces,serif}
+.fc-rate-btn .fc-rate-label{font-weight:600;font-size:13.5px}
+.fc-rate-btn .fc-rate-sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;opacity:.8}
+.fc-rate-btn.errei{border-color:var(--coral);color:var(--coral)}
+.fc-rate-btn.dificil{border-color:var(--brass-bright);color:var(--brass-bright)}
+.fc-rate-btn.bom{border-color:var(--teal);color:var(--teal);background:rgba(47,158,143,.15)}
+.fc-rate-btn.facil{border-color:#4FA3D1;color:#4FA3D1}
+
+.fc-confirm{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(47,158,143,.15);border:1px solid var(--teal);color:var(--teal);font-family:Fraunces,serif;font-weight:600;font-size:14px;border-radius:var(--radius-md);padding:13px;margin-bottom:12px}
+
+.fc-empty{background:var(--ocean-mid);border:1px solid var(--ocean-line);border-radius:var(--radius-lg);padding:40px 24px;text-align:center;color:var(--paper);font-family:Fraunces,serif;font-size:17px}
+.fc-manual-btn{display:block;margin:20px auto 0;background:transparent;border:1.5px solid var(--ocean-line);color:#9FB3C8;font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:10px 18px;border-radius:var(--radius-sm);cursor:pointer}
+
+
+
+
+
+/* ===== Recuperação ativa (responder antes de ver resolução) ===== */
+.recall-box{background:var(--paper);border:1px solid var(--paper-dim);border-radius:var(--radius-lg);padding:24px;margin-bottom:22px}
+.recall-title{font-family:Fraunces,serif;font-weight:600;font-size:16px;margin:0 0 16px}
+.recall-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.recall-option{display:flex;align-items:center;gap:10px;text-align:left;padding:13px 16px;border-radius:var(--radius-md);border:1.5px solid var(--paper-dim);background:#fff;cursor:pointer;font-size:14.5px;color:var(--ink)}
+.recall-option:hover{border-color:var(--brass)}
+.recall-option .alt-letra{background:var(--ink-soft);color:#fff}
+
+.recall-result{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-radius:var(--radius-md);margin-bottom:18px;font-family:Fraunces,serif;font-weight:600;font-size:15px;flex-wrap:wrap}
+.recall-retry-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;background:rgba(255,255,255,.5);border:1.5px solid currentColor;color:inherit;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer}
+.recall-result.correto{background:rgba(47,158,143,.15);border:1.5px solid var(--teal);color:var(--teal)}
+.recall-result.errado{background:rgba(214,90,49,.12);border:1.5px solid var(--coral);color:var(--coral)}
+
+.recall-locked-note{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);text-align:center;padding:8px}
+
+
+
+.alt-item.your-pick{border-color:var(--ink-soft)}
+.your-pick-tag{margin-left:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;background:var(--paper-dim);color:var(--ink-soft);padding:2px 8px;border-radius:10px}
+
+
+.recall-question-text{font-family:'IBM Plex Mono',monospace;font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap;background:#fff;border:1.5px solid #C9BE9F;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:18px}

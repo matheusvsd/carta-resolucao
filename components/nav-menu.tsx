@@ -1,10 +1,11 @@
+
 "use client";
 import { useEffect, useState } from "react";
 
 const ITEMS = [
   { label: "Questões", href: "/", icon: "⚓", disponivel: true },
     { label: "Matérias", href: "/materias", icon: "📚", disponivel: true },
-  { label: "Flashcards", href: "#", icon: "🗂️", disponivel: false },
+    { label: "Flashcards", href: "/flashcards", icon: "🗂️", disponivel: true },
 ];
 
 export function NavMenu() {
