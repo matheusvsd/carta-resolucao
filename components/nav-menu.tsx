@@ -8,6 +8,7 @@ const ITEMS = [
   { label: "Flashcards", href: "/flashcards", icon: "🗂️", disponivel: true },
   { label: "Desempenho", href: "/desempenho", icon: "📊", disponivel: true },
   { label: "Simulado", href: "/simulado", icon: "⏱️", disponivel: true },
+  { label: "Importar questões", href: "/importar", icon: "📥", disponivel: true },
 ];
 
 export function NavMenu() {

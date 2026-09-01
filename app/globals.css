@@ -285,3 +285,15 @@ footer{text-align:center;margin-top:30px;font-size:12px;color:#6F84A0;font-famil
 .dash-hero-num{font-family:Fraunces,serif;font-weight:700;font-size:28px;color:var(--ink)}
 .dash-hero-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
 .dash-hero-divider{width:1px;height:40px;background:var(--paper-dim)}
+
+
+/* ===== Importação em lote ===== */
+.import-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:400px;overflow-y:auto}
+.import-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--paper-dim);background:rgba(255,255,255,.4);font-size:13px}
+.import-item.ok{border-color:var(--teal);background:rgba(47,158,143,.08)}
+.import-item.erro{border-color:var(--coral);background:rgba(214,90,49,.08)}
+.import-item.processando{border-color:var(--brass)}
+.import-num{font-family:'IBM Plex Mono',monospace;font-weight:600;flex-shrink:0}
+.import-preview{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-soft)}
+.import-gabarito{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--brass);flex-shrink:0}
+.import-status{flex-shrink:0}

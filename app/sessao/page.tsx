@@ -87,9 +87,15 @@ export default function SessaoPage() {
 
   return (
     <main className="wrap">
-      <header>
+            <header>
         <div className="eyebrow">Sessão de revisão</div>
-        <h1>Estudando: {Array.from(temasFiltro).join(", ") || "Temas selecionados"}</h1>
+        <h1>
+          {temasFiltro.size === 0
+            ? "Sessão de estudo"
+            : temasFiltro.size <= 3
+              ? `Estudando: ${Array.from(temasFiltro).join(", ")}`
+              : `Estudando ${temasFiltro.size} temas`}
+        </h1>
       </header>
 
       {!acabou && fila.length > 0 && (

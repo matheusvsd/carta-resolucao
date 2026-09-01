@@ -87,20 +87,24 @@ da estrutura JSON.`;
 
 export async function POST(request: Request) {
   try {
-    const { questionText, subject } = await request.json();
+      const { questionText, subject, gabaritoOficial } = await request.json();
 
     if (!questionText?.trim()) {
       return NextResponse.json({ error: "Questão vazia." }, { status: 400 });
     }
 
+    const contextoGabarito = gabaritoOficial
+      ? `\n\nIMPORTANTE: o gabarito oficial desta questão é a alternativa "${gabaritoOficial}". Use exatamente essa letra no campo "alternativa_correta" e construa toda a explicação (passos, motivos de erro das outras alternativas) de forma consistente com esse gabarito.`
+      : "";
+
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
-      messages: [
+            messages: [
         {
           role: "user",
-          content: `Matéria: ${subject}\n\nQuestão:\n${questionText}`,
+          content: `Matéria: ${subject}\n\nQuestão:\n${questionText}${contextoGabarito}`,
         },
       ],
     });
