@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { NavMenu } from "@/components/nav-menu";
-
+import { BottomNav } from "@/components/bottom-nav";
 export const metadata: Metadata = {
   title: "Carta de Resolução — Marinha Mercante",
   description: "Resolva questões de Matemática e Português com explicação passo a passo.",
@@ -10,9 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body>
+            <body>
         <NavMenu />
         {children}
+        <BottomNav />
       </body>
     </html>
   );

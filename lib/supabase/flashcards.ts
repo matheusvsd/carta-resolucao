@@ -80,6 +80,7 @@ export async function reviewFlashcard(id: string, avaliacao: "errei" | "dificil"
       interval_dias: dias,
       next_review_at: nextReviewAt,
       ultima_avaliacao: avaliacao,
+      last_reviewed_at: new Date().toISOString(),
     })
     .eq("id", id);
 
