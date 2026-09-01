@@ -277,3 +277,11 @@ footer{text-align:center;margin-top:30px;font-size:12px;color:#6F84A0;font-famil
 .sim-progress-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper)}
 .sim-timer{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--brass-bright);background:var(--ocean-mid);padding:4px 12px;border-radius:20px}
 .sim-tempo-final{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft)}
+
+
+/* ===== Contador de prova + streak ===== */
+.dash-hero{display:flex;align-items:center;background:var(--paper);border:1px solid var(--paper-dim);border-radius:var(--radius-lg);padding:20px 10px;margin-bottom:16px;box-shadow:0 20px 40px -18px rgba(0,0,0,.4)}
+.dash-hero-item{flex:1;text-align:center}
+.dash-hero-num{font-family:Fraunces,serif;font-weight:700;font-size:28px;color:var(--ink)}
+.dash-hero-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.dash-hero-divider{width:1px;height:40px;background:var(--paper-dim)}

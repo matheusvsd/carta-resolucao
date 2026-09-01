@@ -1,5 +1,6 @@
 import { supabase } from "./client";
 import type { QuestionRecord, Subject } from "@/types/question";
+import { recordStudyDay } from "./streak";
 
 export async function fetchQuestions(subject: Subject): Promise<QuestionRecord[]> {
   const { data, error } = await supabase
@@ -79,6 +80,7 @@ export async function submitAnswer(id: string, letra: string, acertou: boolean) 
     })
     .eq("id", id);
   if (error) throw error;
+  recordStudyDay().catch((err) => console.error("Erro ao registrar dia de estudo:", err));
 }
 
 

@@ -3,16 +3,28 @@ import { useEffect, useMemo, useState } from "react";
 import type { Subject } from "@/types/question";
 import { SUBJECT_LABELS } from "@/lib/topics";
 import { fetchWeeklySummary, fetchTemasDisponiveis, type WeeklySummary, type TemaOption } from "@/lib/supabase/dashboard";
+import { fetchStreak, type StreakInfo } from "@/lib/supabase/streak";
+
+const DATA_PROVA = new Date("2027-01-21T00:00:00");
+
+function diasRestantes() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const diff = DATA_PROVA.getTime() - hoje.getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<WeeklySummary | null>(null);
+  const [streak, setStreak] = useState<StreakInfo | null>(null);
   const [subject, setSubject] = useState<Subject>("matematica");
   const [temas, setTemas] = useState<TemaOption[]>([]);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
     fetchWeeklySummary().then(setSummary).catch((err) => console.error(err));
+    fetchStreak().then(setStreak).catch((err) => console.error(err));
   }, []);
 
   useEffect(() => {
@@ -57,6 +69,18 @@ export default function DashboardPage() {
         <h1>Carta de Resolução</h1>
         <p className="sub">Seu painel de estudo diário.</p>
       </header>
+
+            <div className="dash-hero">
+        <div className="dash-hero-item">
+          <div className="dash-hero-num">{diasRestantes()}</div>
+          <div className="dash-hero-label">dias até a prova</div>
+        </div>
+        <div className="dash-hero-divider" />
+        <div className="dash-hero-item">
+          <div className="dash-hero-num">🔥 {streak?.streak ?? 0}</div>
+          <div className="dash-hero-label">{streak?.streak === 1 ? "dia seguido" : "dias seguidos"}</div>
+        </div>
+      </div>
 
       {summary && (
         <div className="dash-summary">

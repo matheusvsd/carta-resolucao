@@ -1,5 +1,6 @@
 import { supabase } from "./client";
 import type { Subject } from "@/types/question";
+import { recordStudyDay } from "./streak";
 
 export interface FlashcardRecord {
   id: string;
@@ -84,7 +85,8 @@ export async function reviewFlashcard(id: string, avaliacao: "errei" | "dificil"
     })
     .eq("id", id);
 
-  if (error) throw error;
+    if (error) throw error;
+  recordStudyDay().catch((err) => console.error("Erro ao registrar dia de estudo:", err));
   return nextReviewAt;
 }
 
