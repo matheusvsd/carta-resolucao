@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { QuestionRecord, Subject } from "@/types/question";
 import { SUBJECT_LABELS } from "@/lib/topics";
-import { fetchQuestions, saveQuestion, deleteQuestion, markReviewed, toggleAttention, submitAnswer, clearAnswer } from "@/lib/supabase/questions";
+import { fetchQuestions, saveQuestion, deleteQuestion, markReviewed, toggleAttention, submitAnswer, clearAnswer, updateTema, updateSolution } from "@/lib/supabase/questions";
 import { QuestionFigure } from "@/components/question-figure";
 
 const placeholders: Record<Subject, string> = {
@@ -35,7 +35,7 @@ function renderHighlighted(text?: string) {
   );
 }
 
-export function ResolutionApp() {
+export function ResolutionApp({ embedHeader = true }: { embedHeader?: boolean }) {
   const searchParams = useSearchParams();
   const [subject, setSubject] = useState<Subject>(
     (searchParams.get("subject") as Subject) || "matematica"
@@ -48,6 +48,9 @@ export function ResolutionApp() {
   const [selected, setSelected] = useState<QuestionRecord | null>(null);
   const [bankTab, setBankTab] = useState<"diario" | "atencao">("diario");
   const [answering, setAnswering] = useState(false);
+  const [editandoTema, setEditandoTema] = useState(false);
+  const [temaDraft, setTemaDraft] = useState("");
+  const [regenerando, setRegenerando] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -156,6 +159,53 @@ export function ResolutionApp() {
     }
   }
 
+
+
+
+
+  async function handleSalvarTema() {
+    if (!selected || !temaDraft.trim()) return;
+    try {
+      await updateTema(selected.id, temaDraft.trim());
+      const atualizado = { ...selected, tema: temaDraft.trim() };
+      setSelected(atualizado);
+      setQuestions((prev) => prev.map((q) => q.id === selected.id ? atualizado : q));
+      setEditandoTema(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar tema.");
+    }
+  }
+
+  async function handleRegenerar() {
+    if (!selected) return;
+    if (!confirm("Isso vai pedir uma nova resolução para a IA, substituindo a atual. Continuar?")) return;
+    setRegenerando(true);
+    try {
+      const res = await fetch("/api/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionText: selected.questionText, subject: selected.subject }),
+      });
+      if (!res.ok) throw new Error("Falha ao regenerar");
+      const solved = await res.json();
+      await updateSolution(selected.id, solved, solved.lesson ?? null);
+      const atualizado = { ...selected, tema: solved.tema ?? selected.tema, solved, lesson: solved.lesson ?? null };
+      setSelected(atualizado);
+      setQuestions((prev) => prev.map((q) => q.id === selected.id ? atualizado : q));
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao regenerar resolução.");
+    } finally {
+      setRegenerando(false);
+    }
+  }
+
+
+
+
+
+
     async function handleRetry(id: string) {
     try {
       await clearAnswer(id);
@@ -200,11 +250,13 @@ export function ResolutionApp() {
 
   return (
     <main className="wrap">
-      <header>
-        <div className="eyebrow">Agente IA · Marinha Mercante</div>
-        <h1>Carta de Resolução</h1>
-        <p className="sub">Cole uma questão de Matemática ou Português. Eu traço a rota completa da resolução — passo a passo, regra por regra.</p>
-      </header>
+            {embedHeader && (
+        <header>
+          <div className="eyebrow">Agente IA · Marinha Mercante</div>
+          <h1>Carta de Resolução</h1>
+          <p className="sub">Cole uma questão de Matemática ou Português. Eu traço a rota completa da resolução — passo a passo, regra por regra.</p>
+        </header>
+      )}
 
       <div className="progress-box">
         <div className="progress-row">
@@ -266,7 +318,17 @@ export function ResolutionApp() {
             </div>
           </div>
 
-          <div className="result-tema-tag">🏷️ Tema: {selected.solved.tema}</div>
+          {editandoTema ? (
+            <div className="tema-edit-row">
+              <input className="bank-search-input" value={temaDraft} onChange={(e) => setTemaDraft(e.target.value)} />
+              <button className="action-btn" onClick={handleSalvarTema}>Salvar</button>
+              <button className="action-btn" onClick={() => setEditandoTema(false)}>Cancelar</button>
+            </div>
+          ) : (
+            <div className="result-tema-tag" onClick={() => { setTemaDraft(selected.tema); setEditandoTema(true); }} style={{ cursor: "pointer" }}>
+              🏷️ Tema: {selected.tema} ✏️
+            </div>
+          )}
 
           <div className="result-final">
             <div className="result-final-label">Resposta final</div>
@@ -335,7 +397,7 @@ export function ResolutionApp() {
             </>
           )}
 
-                    <div className="result-actions">
+          <div className="result-actions">
             <button
               className={`action-btn ${isReviewedThisWeek(selected.reviewedAt) ? "reviewed" : ""}`}
               onClick={() => handleMarkReviewed(selected.id)}
@@ -348,7 +410,9 @@ export function ResolutionApp() {
             >
               {selected.attention ? "★ Atenção marcada" : "☆ Marcar atenção"}
             </button>
-            
+            <button className="action-btn" onClick={handleRegenerar} disabled={regenerando}>
+              {regenerando ? "Regenerando..." : "🔄 Regenerar resolução"}
+            </button>
           </div>
         </section>
       )}

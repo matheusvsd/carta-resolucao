@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Subject } from "@/types/question";
 import { SUBJECT_LABELS } from "@/lib/topics";
-import { fetchTopics, saveTopic, deleteTopic, type TopicRecord, type TopicResumo } from "@/lib/supabase/topics";
+import { fetchTopics, saveTopic, deleteTopic, updateTopicResumo, type TopicRecord, type TopicResumo } from "@/lib/supabase/topics";
+import { useSearchParams } from "next/navigation";
 
 function renderHighlighted(text?: string) {
   if (!text) return null;
@@ -17,13 +18,19 @@ function renderHighlighted(text?: string) {
 }
 
 export default function MateriasPage() {
+  const searchParams = useSearchParams();
   const [subject, setSubject] = useState<Subject>("matematica");
   const [topics, setTopics] = useState<TopicRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<TopicRecord | null>(null);
 
-  const [modo, setModo] = useState<"simples" | "material">("simples");
+  const [modo, setModo] = useState<"simples" | "material">(
+    searchParams.get("modo") === "material" ? "material" : "simples"
+  );
 
+  const [editando, setEditando] = useState(false);
+  const [editDraft, setEditDraft] = useState<TopicResumo | null>(null);
+  const [salvandoEdit, setSalvandoEdit] = useState(false);
   const [categoria, setCategoria] = useState("");
   const [topico, setTopico] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -179,6 +186,29 @@ export default function MateriasPage() {
     setSalvandoBatch(false);
   }
 
+  function iniciarEdicao() {
+    if (!selected?.resumo) return;
+    setEditDraft({ ...selected.resumo });
+    setEditando(true);
+  }
+
+  async function salvarEdicao() {
+    if (!selected || !editDraft) return;
+    setSalvandoEdit(true);
+    try {
+      await updateTopicResumo(selected.id, editDraft);
+      const atualizado = { ...selected, resumo: editDraft };
+      setSelected(atualizado);
+      setTopics((prev) => prev.map((t) => t.id === selected.id ? atualizado : t));
+      setEditando(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar edição.");
+    } finally {
+      setSalvandoEdit(false);
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Excluir este tópico?")) return;
     try {
@@ -331,7 +361,7 @@ export default function MateriasPage() {
         )}
       </section>
 
-      {selected && selected.resumo && (
+      {selected && selected.resumo && !editando && (
         <section className="chart result-card">
           <div className="result-tema-tag">📚 {selected.categoria} · {selected.topico}</div>
           <TopicResumoView resumo={selected.resumo} />
@@ -339,7 +369,37 @@ export default function MateriasPage() {
             <a className="action-btn" href={`/questoes?tema=${encodeURIComponent(selected.topico)}&subject=${subject}`}>
               ⚓ Ver questões relacionadas
             </a>
+            <button className="action-btn" onClick={iniciarEdicao}>✏️ Editar</button>
             <button className="action-btn" onClick={() => handleDelete(selected.id)}>🗑️ Excluir tópico</button>
+          </div>
+        </section>
+      )}
+
+      {selected && editando && editDraft && (
+        <section className="chart result-card">
+          <div className="result-tema-tag">✏️ Editando: {selected.topico}</div>
+
+          <label className="field-label" style={{ fontSize: 13 }}>Definição</label>
+          <textarea value={editDraft.definicao} onChange={(e) => setEditDraft({ ...editDraft, definicao: e.target.value })} style={{ minHeight: 80, marginBottom: 14 }} />
+
+          <label className="field-label" style={{ fontSize: 13 }}>Como identificar</label>
+          <textarea value={editDraft.como_identificar} onChange={(e) => setEditDraft({ ...editDraft, como_identificar: e.target.value })} style={{ minHeight: 80, marginBottom: 14 }} />
+
+          <label className="field-label" style={{ fontSize: 13 }}>Exemplos (um por linha)</label>
+          <textarea
+            value={editDraft.exemplos?.join("\n") ?? ""}
+            onChange={(e) => setEditDraft({ ...editDraft, exemplos: e.target.value.split("\n") })}
+            style={{ minHeight: 80, marginBottom: 14 }}
+          />
+
+          <label className="field-label" style={{ fontSize: 13 }}>Macete</label>
+          <textarea value={editDraft.macete} onChange={(e) => setEditDraft({ ...editDraft, macete: e.target.value })} style={{ minHeight: 60, marginBottom: 14 }} />
+
+          <div className="controls">
+            <button className="action-btn" onClick={() => setEditando(false)} style={{ marginRight: 8 }}>Cancelar</button>
+            <button className="chart-btn" onClick={salvarEdicao} disabled={salvandoEdit}>
+              {salvandoEdit ? "Salvando..." : "Salvar alterações"}
+            </button>
           </div>
         </section>
       )}

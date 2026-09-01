@@ -129,3 +129,17 @@ export async function fetchDesempenho(subject: Subject): Promise<DesempenhoTema[
     }))
     .sort((a, b) => a.pctAcerto - b.pctAcerto);
 }
+
+
+export async function updateTema(id: string, tema: string) {
+  const { error } = await supabase.from("questions").update({ tema }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateSolution(id: string, solved: any, lesson: any) {
+  const { error } = await supabase
+    .from("questions")
+    .update({ tema: solved.tema ?? "Geral", solved, lesson })
+    .eq("id", id);
+  if (error) throw error;
+}

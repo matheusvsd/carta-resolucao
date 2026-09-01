@@ -63,11 +63,24 @@ export default function ImportarPage() {
 
   return (
     <main className="wrap">
-      <header>
+            <header>
         <div className="eyebrow">Agente IA · Marinha Mercante</div>
-        <h1>Importar questões em lote</h1>
-        <p className="sub">Cole um arquivo com várias questões (com gabarito oficial) e deixe a IA resolver todas de uma vez.</p>
+        <h1>Importar conteúdo</h1>
+        <p className="sub">Escolha o que você quer importar em lote.</p>
       </header>
+
+      <div className="import-hub-row">
+        <div className="import-hub-card active">
+          <div className="import-hub-icon">📝</div>
+          <div className="import-hub-title">Questões</div>
+          <div className="import-hub-desc">Cole um arquivo com várias questões e gabarito — a IA resolve todas.</div>
+        </div>
+        <a className="import-hub-card" href="/materias?modo=material">
+          <div className="import-hub-icon">📄</div>
+          <div className="import-hub-title">Matérias (PDF/texto)</div>
+          <div className="import-hub-desc">Envie um PDF ou texto de estudo — a IA extrai os tópicos automaticamente.</div>
+        </a>
+      </div>
 
       <section className="chart">
         <div className="subject-tabs">

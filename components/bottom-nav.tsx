@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
   { label: "Início", href: "/", icon: "🏠" },
-  { label: "Questões", href: "/questoes", icon: "⚓" },
+  { label: "Praticar", href: "/praticar", icon: "⚓" },
   { label: "Matérias", href: "/materias", icon: "📚" },
   { label: "Cards", href: "/flashcards", icon: "🗂️" },
   { label: "Painel", href: "/desempenho", icon: "📊" },

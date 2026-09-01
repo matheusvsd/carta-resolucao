@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase/client";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
@@ -97,6 +98,16 @@ export async function POST(request: Request) {
       ? `\n\nIMPORTANTE: o gabarito oficial desta questão é a alternativa "${gabaritoOficial}". Use exatamente essa letra no campo "alternativa_correta" e construa toda a explicação (passos, motivos de erro das outras alternativas) de forma consistente com esse gabarito.`
       : "";
 
+    const { data: temasExistentesData } = await supabase
+      .from("questions")
+      .select("tema")
+      .eq("subject", subject);
+    const temasExistentes = Array.from(new Set((temasExistentesData ?? []).map((r) => r.tema))).filter(Boolean);
+
+    const contextoTemas = temasExistentes.length > 0
+      ? `\n\nTEMAS JÁ CADASTRADOS NESTA MATÉRIA: ${temasExistentes.join(", ")}.\nIMPORTANTE: se esta questão se encaixar em algum desses temas, use EXATAMENTE o mesmo nome (mesma grafia, sem variações). Só crie um nome de tema novo se o assunto realmente não for coberto por nenhum da lista.`
+      : "";
+
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 4096,
@@ -104,7 +115,7 @@ export async function POST(request: Request) {
             messages: [
         {
           role: "user",
-          content: `Matéria: ${subject}\n\nQuestão:\n${questionText}${contextoGabarito}`,
+          content: `Matéria: ${subject}\n\nQuestão:\n${questionText}${contextoGabarito}${contextoTemas}`,
         },
       ],
     });
