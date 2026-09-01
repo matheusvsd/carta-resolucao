@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Subject } from "@/types/question";
 import { SUBJECT_LABELS } from "@/lib/topics";
-import { fetchTopics, saveTopic, updateTopicResumo, deleteTopic, type TopicRecord, type TopicResumo } from "@/lib/supabase/topics";
+import { fetchTopics, saveTopic, deleteTopic, type TopicRecord, type TopicResumo } from "@/lib/supabase/topics";
 
 function renderHighlighted(text?: string) {
   if (!text) return null;
@@ -22,11 +22,22 @@ export default function MateriasPage() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<TopicRecord | null>(null);
 
+  const [modo, setModo] = useState<"simples" | "material">("simples");
+
   const [categoria, setCategoria] = useState("");
   const [topico, setTopico] = useState("");
   const [generating, setGenerating] = useState(false);
   const [draft, setDraft] = useState<TopicResumo | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [categoriaMaterial, setCategoriaMaterial] = useState("");
+  const [textoMaterial, setTextoMaterial] = useState("");
+  const [arquivoNome, setArquivoNome] = useState("");
+  const [pdfBase64, setPdfBase64] = useState<string | null>(null);
+  const [processandoMaterial, setProcessandoMaterial] = useState(false);
+  const [draftBatch, setDraftBatch] = useState<Array<TopicResumo & { topico: string }> | null>(null);
+  const [salvandoBatch, setSalvandoBatch] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -96,6 +107,78 @@ export default function MateriasPage() {
     }
   }
 
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setArquivoNome(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(",")[1];
+      setPdfBase64(base64);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function handleProcessarMaterial() {
+    if (!categoriaMaterial.trim()) return;
+    if (!pdfBase64 && !textoMaterial.trim()) return;
+    setProcessandoMaterial(true);
+    setDraftBatch(null);
+    try {
+      const res = await fetch("/api/topic-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject,
+          categoria: categoriaMaterial,
+          sourceType: pdfBase64 ? "pdf" : "texto",
+          text: textoMaterial,
+          pdfBase64,
+        }),
+      });
+      if (!res.ok) throw new Error("Falha ao processar");
+      const data = await res.json();
+      setDraftBatch(data);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao processar o material. Tente novamente.");
+    } finally {
+      setProcessandoMaterial(false);
+    }
+  }
+
+  async function handleSalvarBatch() {
+    if (!draftBatch) return;
+    setSalvandoBatch(true);
+    let sucesso = 0;
+    for (const item of draftBatch) {
+      try {
+        const saved = await saveTopic({
+          subject,
+          categoria: categoriaMaterial,
+          topico: item.topico,
+          resumo: { definicao: item.definicao, como_identificar: item.como_identificar, exemplos: item.exemplos, macete: item.macete },
+        });
+        setTopics((prev) => [...prev, {
+          id: saved.id, subject: saved.subject, categoria: saved.categoria,
+          topico: saved.topico, resumo: saved.resumo, createdAt: saved.created_at,
+        }]);
+        sucesso++;
+      } catch (err) {
+        console.error(`Erro ao salvar tópico ${item.topico}:`, err);
+      }
+    }
+    alert(`${sucesso} de ${draftBatch.length} tópicos salvos com sucesso.`);
+    setDraftBatch(null);
+    setCategoriaMaterial("");
+    setTextoMaterial("");
+    setArquivoNome("");
+    setPdfBase64(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setSalvandoBatch(false);
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Excluir este tópico?")) return;
     try {
@@ -122,47 +205,128 @@ export default function MateriasPage() {
           <button className={`subject-tab ${subject === "portugues" ? "active" : ""}`} onClick={() => { setSubject("portugues"); setSelected(null); }}>📘 Português</button>
         </div>
 
-        <div className="section-label">Novo tópico</div>
-        <div className="topic-form-row">
-          <div className="topic-form-field">
-            <label className="field-label" style={{ fontSize: 13 }}>Categoria</label>
-            <input
-              className="bank-search-input"
-              list="categorias-existentes"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              placeholder="Ex.: Morfologia"
-            />
-            <datalist id="categorias-existentes">
-              {categoriasExistentes.map((c) => <option key={c} value={c} />)}
-            </datalist>
-          </div>
-          <div className="topic-form-field">
-            <label className="field-label" style={{ fontSize: 13 }}>Tópico</label>
-            <input
-              className="bank-search-input"
-              value={topico}
-              onChange={(e) => setTopico(e.target.value)}
-              placeholder="Ex.: Sujeito"
-            />
-          </div>
-        </div>
-        <div className="controls">
-          <button className="chart-btn" disabled={!categoria.trim() || !topico.trim() || generating} onClick={handleGenerate}>
-            {generating ? "Gerando..." : "✨ Gerar resumo com IA"}
-          </button>
+        <div className="topic-mode-tabs">
+          <button className={`topic-mode-tab ${modo === "simples" ? "active" : ""}`} onClick={() => setModo("simples")}>✏️ Criar tópico simples</button>
+          <button className={`topic-mode-tab ${modo === "material" ? "active" : ""}`} onClick={() => setModo("material")}>📄 Importar de PDF/texto</button>
         </div>
 
-        {draft && (
-          <div className="topic-draft">
-            <div className="section-label">Prévia — revise antes de salvar</div>
-            <TopicResumoView resumo={draft} />
+        {modo === "simples" && (
+          <>
+            <div className="section-label">Novo tópico</div>
+            <div className="topic-form-row">
+              <div className="topic-form-field">
+                <label className="field-label" style={{ fontSize: 13 }}>Categoria</label>
+                <input
+                  className="bank-search-input"
+                  list="categorias-existentes"
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  placeholder="Ex.: Morfologia"
+                />
+                <datalist id="categorias-existentes">
+                  {categoriasExistentes.map((c) => <option key={c} value={c} />)}
+                </datalist>
+              </div>
+              <div className="topic-form-field">
+                <label className="field-label" style={{ fontSize: 13 }}>Tópico</label>
+                <input
+                  className="bank-search-input"
+                  value={topico}
+                  onChange={(e) => setTopico(e.target.value)}
+                  placeholder="Ex.: Sujeito"
+                />
+              </div>
+            </div>
             <div className="controls">
-              <button className="action-btn" onClick={() => setDraft(null)} style={{ marginRight: 8 }}>Descartar</button>
-              <button className="chart-btn" onClick={handleSaveDraft} disabled={saving}>
-                {saving ? "Salvando..." : "Salvar tópico"}
+              <button className="chart-btn" disabled={!categoria.trim() || !topico.trim() || generating} onClick={handleGenerate}>
+                {generating ? "Gerando..." : "✨ Gerar resumo com IA"}
               </button>
             </div>
+
+            {draft && (
+              <div className="topic-draft">
+                <div className="section-label">Prévia — revise antes de salvar</div>
+                <TopicResumoView resumo={draft} />
+                <div className="controls">
+                  <button className="action-btn" onClick={() => setDraft(null)} style={{ marginRight: 8 }}>Descartar</button>
+                  <button className="chart-btn" onClick={handleSaveDraft} disabled={saving}>
+                    {saving ? "Salvando..." : "Salvar tópico"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {modo === "material" && (
+          <div className="topic-material-form">
+            <div className="topic-form-field">
+              <label className="field-label" style={{ fontSize: 13 }}>Categoria (ex.: Morfologia)</label>
+              <input
+                className="bank-search-input"
+                value={categoriaMaterial}
+                onChange={(e) => setCategoriaMaterial(e.target.value)}
+                placeholder="Ex.: Morfologia"
+              />
+            </div>
+
+            <div className="topic-upload-row">
+              <button className="action-btn" onClick={() => fileInputRef.current?.click()}>
+                📎 {arquivoNome || "Escolher PDF"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+              />
+              {pdfBase64 && (
+                <button className="action-btn" onClick={() => { setPdfBase64(null); setArquivoNome(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}>
+                  ✕ remover
+                </button>
+              )}
+            </div>
+
+            <div className="topic-or-divider">ou cole o texto abaixo</div>
+
+            <textarea
+              value={textoMaterial}
+              onChange={(e) => setTextoMaterial(e.target.value)}
+              placeholder="Cole aqui o texto do material de estudo..."
+              disabled={!!pdfBase64}
+              style={{ minHeight: 140 }}
+            />
+
+            <div className="controls">
+              <button
+                className="chart-btn"
+                disabled={!categoriaMaterial.trim() || (!pdfBase64 && !textoMaterial.trim()) || processandoMaterial}
+                onClick={handleProcessarMaterial}
+              >
+                {processandoMaterial ? "Analisando material..." : "✨ Extrair tópicos com IA"}
+              </button>
+            </div>
+
+            {draftBatch && (
+              <div className="topic-draft">
+                <div className="section-label">{draftBatch.length} tópicos identificados — revise antes de salvar</div>
+                <div className="topic-batch-list">
+                  {draftBatch.map((t, i) => (
+                    <details key={i} className="topic-batch-item">
+                      <summary>{t.topico}</summary>
+                      <TopicResumoView resumo={t} />
+                    </details>
+                  ))}
+                </div>
+                <div className="controls">
+                  <button className="action-btn" onClick={() => setDraftBatch(null)} style={{ marginRight: 8 }}>Descartar tudo</button>
+                  <button className="chart-btn" onClick={handleSalvarBatch} disabled={salvandoBatch}>
+                    {salvandoBatch ? "Salvando..." : `Salvar todos os ${draftBatch.length} tópicos`}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </section>
@@ -172,7 +336,7 @@ export default function MateriasPage() {
           <div className="result-tema-tag">📚 {selected.categoria} · {selected.topico}</div>
           <TopicResumoView resumo={selected.resumo} />
           <div className="result-actions">
-            <a className="action-btn" href={`/?tema=${encodeURIComponent(selected.topico)}&subject=${subject}`}>
+            <a className="action-btn" href={`/questoes?tema=${encodeURIComponent(selected.topico)}&subject=${subject}`}>
               ⚓ Ver questões relacionadas
             </a>
             <button className="action-btn" onClick={() => handleDelete(selected.id)}>🗑️ Excluir tópico</button>

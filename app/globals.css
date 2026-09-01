@@ -297,3 +297,19 @@ footer{text-align:center;margin-top:30px;font-size:12px;color:#6F84A0;font-famil
 .import-preview{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-soft)}
 .import-gabarito{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--brass);flex-shrink:0}
 .import-status{flex-shrink:0}
+
+
+
+/* ===== Importar Matéria de PDF/texto ===== */
+.topic-mode-tabs{display:flex;gap:6px;margin-bottom:22px}
+.topic-mode-tab{font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:9px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--paper-dim);background:transparent;color:var(--ink-soft);cursor:pointer}
+.topic-mode-tab.active{background:var(--ocean-mid);color:var(--paper);border-color:var(--ocean-mid)}
+
+.topic-material-form{display:flex;flex-direction:column;gap:14px}
+.topic-upload-row{display:flex;gap:8px;align-items:center}
+.topic-or-divider{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em}
+
+.topic-batch-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.topic-batch-item{border:1.5px solid var(--paper-dim);border-radius:var(--radius-md);padding:12px 16px;background:rgba(255,255,255,.4)}
+.topic-batch-item summary{font-family:Fraunces,serif;font-weight:600;font-size:15px;cursor:pointer;color:var(--ink)}
+.topic-batch-item[open] summary{margin-bottom:12px}
