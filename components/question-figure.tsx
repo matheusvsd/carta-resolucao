@@ -99,7 +99,7 @@ export function QuestionFigure({ figura }: { figura?: Figura | null }) {
           <div className="figure-medidas">
             {figura.medidas.map((m, i) => (
               <div key={i} className="figure-medida-item">
-                <span className="figure-medida-label">{m.chave.replace("_", " ")}:</span> {m.valor}
+                <span className="figure-medida-label">{(m.chave ?? "").replace("_", " ")}:</span> {m.valor}
               </div>
             ))}
           </div>

@@ -7,6 +7,7 @@ const ITEMS = [
   { label: "Matérias", href: "/materias", icon: "📚", disponivel: true },
   { label: "Flashcards", href: "/flashcards", icon: "🗂️", disponivel: true },
   { label: "Desempenho", href: "/desempenho", icon: "📊", disponivel: true },
+  { label: "Simulado", href: "/simulado", icon: "⏱️", disponivel: true },
 ];
 
 export function NavMenu() {
@@ -26,7 +27,7 @@ export function NavMenu() {
 
   return (
     <>
-      <button
+            <button
         className="nav-hamburger"
         onClick={() => setOpen(true)}
         aria-label="Abrir menu"

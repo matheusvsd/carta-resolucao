@@ -270,3 +270,10 @@ footer{text-align:center;margin-top:30px;font-size:12px;color:#6F84A0;font-famil
 
 .sessao-progress{margin-bottom:20px}
 .sessao-progress-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper);margin-bottom:6px}
+
+
+/* ===== Simulado ===== */
+.sim-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sim-progress-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper)}
+.sim-timer{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--brass-bright);background:var(--ocean-mid);padding:4px 12px;border-radius:20px}
+.sim-tempo-final{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft)}
